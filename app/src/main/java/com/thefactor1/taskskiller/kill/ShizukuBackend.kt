@@ -97,9 +97,19 @@ object ShizukuBackend : KillBackend {
             ?: return ExecResult(-1, "Shizuku returned no process")
 
         val type = process.javaClass
-        // Drain the pipes before waiting, or a chatty command would deadlock.
-        val stdout = (type.getMethod("getInputStream").invoke(process) as InputStream).readTextSafely()
-        val stderr = (type.getMethod("getErrorStream").invoke(process) as InputStream).readTextSafely()
+        val out = type.getMethod("getInputStream").invoke(process) as InputStream
+        val err = type.getMethod("getErrorStream").invoke(process) as InputStream
+
+        // Both pipes have to be drained *concurrently*, and only then may we
+        // wait: reading one to EOF first deadlocks as soon as the command fills
+        // the other pipe's buffer, because it blocks writing to a pipe nobody
+        // is reading while we block on a stream it will never close.
+        var stderr = ""
+        val errorDrain = Thread { stderr = err.readTextSafely() }
+        errorDrain.start()
+        val stdout = out.readTextSafely()
+        errorDrain.join()
+
         val exitCode = type.getMethod("waitFor").invoke(process) as Int
         runCatching { type.getMethod("destroy").invoke(process) }
 

@@ -135,14 +135,19 @@ class RestartService : Service() {
     private fun record(rule: Rule, detail: String, success: Boolean, advanceClock: Boolean = true) {
         Log.i(TAG, "${rule.packageName}: $detail")
         val store = RuleStore.get(this)
-        store.find(rule.id)?.let { current ->
-            store.upsert(
-                current.copy(
-                    lastRunAt = if (advanceClock) System.currentTimeMillis() else current.lastRunAt,
-                    lastResult = detail
-                )
-            )
-        }
+        val current = store.find(rule.id)
+        val updated = current?.copy(
+            lastRunAt = if (advanceClock) System.currentTimeMillis() else current.lastRunAt,
+            lastResult = detail
+        )
+
+        // A rule that keeps deferring records the identical outcome every few
+        // minutes. Writing and logging each repeat would churn storage and
+        // flush the real history out of the 50-entry log within a few hours,
+        // so an unchanged outcome is recorded once and then stays quiet.
+        if (current != null && updated == current) return
+
+        if (updated != null) store.upsert(updated)
         RunLog.get(this).add(rule.label, detail, success)
     }
 
@@ -239,9 +244,19 @@ class RestartService : Service() {
                     context.startService(intent)
                 }
             } catch (e: Exception) {
-                // Android 12+ throws if we somehow lost the exact-alarm exemption.
+                // Android 12+ only lifts the background foreground-service ban
+                // for a broadcast delivered by an *exact* alarm. On the inexact
+                // fallback path that exemption is absent and every run dies
+                // here, so name the cause instead of logging a bare exception.
                 Log.e(TAG, "Could not start restart service", e)
-                RunLog.get(context).add("Rule $ruleId", "Service start blocked: ${e.message}", false)
+                val hint = if (!RestartScheduler.canScheduleExact(context)) {
+                    " — exact alarms are not permitted, so the wake-up carried no " +
+                        "foreground-service exemption. Grant them in Setup."
+                } else {
+                    ""
+                }
+                RunLog.get(context)
+                    .add("Rule $ruleId", "Service start blocked: ${e.message}$hint", false)
             }
         }
     }

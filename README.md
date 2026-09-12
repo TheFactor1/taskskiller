@@ -41,8 +41,13 @@ with no per-boot ADB step.
 - Alarms don't survive a reboot, so everything is re-armed on `BOOT_COMPLETED`.
   Rules live in device-protected storage, so this also works before first
   unlock.
-- Intervals are measured from the end of the previous run. Runs missed while the
-  box was powered off are skipped, not replayed in a burst.
+- Intervals are measured from the end of the previous run, or from when the rule
+  was created if it has not run yet. Both anchors are persisted, so re-arming a
+  schedule — which happens on every app launch — lands on the same instant
+  rather than pushing a pending run further out.
+- Runs missed while the box was powered off collapse into a single catch-up run
+  shortly after the schedule is rebuilt; they are never replayed one per missed
+  interval.
 
 The shortest selectable interval is 5 minutes. Below roughly 15 minutes the
 platform makes no guarantees, though on a plugged-in TV it generally holds.

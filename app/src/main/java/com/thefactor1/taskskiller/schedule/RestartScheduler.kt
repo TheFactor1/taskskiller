@@ -19,11 +19,14 @@ object RestartScheduler {
 
     fun scheduleAll(context: Context) {
         val store = RuleStore.get(context)
-        val enabled = if (store.masterEnabled) store.enabled() else emptyList()
+        // Anchor first: without it [nextRunAt] is not a pure function of stored
+        // state, and rebuilding the schedule would move every pending first run.
+        val allRules = store.backfillAnchors(System.currentTimeMillis())
+        val enabled = if (store.masterEnabled) allRules.filter { it.enabled } else emptyList()
         val enabledIds = enabled.map { it.id }.toSet()
 
         // Drop alarms for rules that were disabled or deleted while we were away.
-        store.all().filterNot { enabledIds.contains(it.id) }.forEach { cancel(context, it.id) }
+        allRules.filterNot { enabledIds.contains(it.id) }.forEach { cancel(context, it.id) }
         enabled.forEach { schedule(context, it) }
     }
 
@@ -53,17 +56,28 @@ object RestartScheduler {
 
     fun cancel(context: Context, ruleId: Long) {
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
-        alarmManager.cancel(pendingIntent(context, ruleId))
+        val pendingIntent = pendingIntent(context, ruleId)
+        alarmManager.cancel(pendingIntent)
+        // Drop the PendingIntent too, so a cancelled rule leaves nothing behind
+        // that a later FLAG_UPDATE_CURRENT could silently resurrect.
+        pendingIntent.cancel()
     }
 
     /**
-     * Intervals are measured from the end of the last run. A run missed while
-     * the box was powered off is simply skipped rather than replayed.
+     * Intervals are measured from the end of the last run, or from the rule's
+     * anchor if it has never run. Both are persisted, which makes this a pure
+     * function of stored state: re-arming the same rule any number of times
+     * lands on the same instant instead of pushing it further out each time.
+     *
+     * Runs missed while the box was powered off collapse into a single one
+     * shortly after boot rather than being replayed one per interval.
      */
     fun nextRunAt(rule: Rule): Long {
         val now = System.currentTimeMillis()
-        if (rule.lastRunAt <= 0L) return now + rule.intervalMillis
-        return maxOf(rule.lastRunAt + rule.intervalMillis, now + MIN_LEAD_MS)
+        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        // Saved by a build that had no anchor yet: start the clock from now.
+        if (base <= 0L) return now + rule.intervalMillis
+        return maxOf(base + rule.intervalMillis, now + MIN_LEAD_MS)
     }
 
     fun canScheduleExact(context: Context): Boolean {

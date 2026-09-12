@@ -16,13 +16,19 @@ import com.thefactor1.taskskiller.util.PackageUtil
 object AppLauncher {
 
     fun launch(context: Context, backend: KillBackend, packageName: String): OpResult {
-        backend.launch(context, packageName)?.let { privileged ->
-            if (privileged.success) return privileged
-            // Fall through and try the ordinary path rather than giving up.
-        }
+        val privileged = backend.launch(context, packageName)
+        if (privileged != null && privileged.success) return privileged
+
+        // Fall through to the ordinary path rather than giving up, but carry
+        // the reason forward: a bare "relaunched" would hide the fact that the
+        // privileged path is broken, which is the thing worth fixing.
+        val privilegedFailure = privileged?.detail?.takeIf { it.isNotBlank() }
 
         val intent = PackageUtil.launchIntent(context, packageName)
-            ?: return OpResult.fail("$packageName has no launchable activity")
+            ?: return OpResult.fail(
+                listOfNotNull("$packageName has no launchable activity", privilegedFailure)
+                    .joinToString("; ")
+            )
 
         intent.addFlags(
             Intent.FLAG_ACTIVITY_NEW_TASK or
@@ -31,11 +37,15 @@ object AppLauncher {
 
         return try {
             context.startActivity(intent)
-            if (backgroundStartsLikelyBlocked(context)) {
-                OpResult(true, "Launch requested, but background activity starts may be blocked")
-            } else {
-                OpResult.OK
-            }
+            val notes = listOfNotNull(
+                privilegedFailure?.let { "privileged launch failed: $it" },
+                if (backgroundStartsLikelyBlocked(context)) {
+                    "background activity starts may be blocked"
+                } else {
+                    null
+                }
+            )
+            if (notes.isEmpty()) OpResult.OK else OpResult(true, notes.joinToString("; "))
         } catch (e: SecurityException) {
             OpResult.fail("Background activity start blocked: ${e.message}")
         } catch (e: Exception) {

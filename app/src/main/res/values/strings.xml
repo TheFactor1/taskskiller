@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TasksKiller</string>
+
+    <string name="notification_channel">Scheduled restarts</string>
+    <string name="notification_title">TasksKiller</string>
+    <string name="notification_text">Restarting a scheduled app…</string>
+
+    <string name="main_subtitle">Kill and relaunch apps on a timer, even while the TV sleeps</string>
+    <string name="rules_header">Restart rules</string>
+    <string name="add_rule">Add app</string>
+    <string name="setup_and_permissions">Setup &amp; permissions</string>
+    <string name="master_enabled">Schedules active</string>
+    <string name="no_rules">No rules yet. Choose \"Add app\" to pick an app and an interval.</string>
+    <string name="recent_activity">Recent activity</string>
+    <string name="no_activity">Nothing has run yet.</string>
+    <string name="clear_log">Clear log</string>
+
+    <string name="pick_app_title">Pick an app to restart</string>
+    <string name="show_system_apps">Show system apps</string>
+    <string name="system_app">system</string>
+    <string name="no_launcher_entry">no launcher entry — kill only</string>
+
+    <string name="rule_edit_title">Restart rule</string>
+    <string name="interval_label">Restart every</string>
+    <string name="interval_minutes">%1$d minutes</string>
+    <string name="interval_hours">%1$s hours</string>
+    <string name="rule_enabled">Rule enabled</string>
+    <string name="rule_relaunch">Relaunch after killing</string>
+    <string name="rule_wake_screen">Wake the screen for the relaunch</string>
+    <string name="rule_skip_screen_on">Skip while the screen is on</string>
+    <string name="relaunch_delay_label">Wait before relaunching</string>
+    <string name="relaunch_delay_value">%1$.1f s</string>
+    <string name="save">Save</string>
+    <string name="delete">Delete</string>
+    <string name="run_now">Run now</string>
+    <string name="run_now_started">Running now — check Recent activity in a few seconds</string>
+
+    <string name="next_run">Next run: %1$s</string>
+    <string name="next_run_paused">Paused</string>
+    <string name="last_run">Last: %1$s</string>
+    <string name="never_run">Not run yet</string>
+    <string name="every_interval">Every %1$s</string>
+
+    <string name="setup_title">Setup &amp; permissions</string>
+    <string name="kill_backends_header">Kill methods</string>
+    <string name="active_backend">Active method: %1$s</string>
+    <string name="backend_available">Available</string>
+    <string name="backend_force_stop">full force-stop</string>
+    <string name="backend_partial">background processes only</string>
+    <string name="grant_shizuku">Grant Shizuku permission</string>
+    <string name="permissions_header">System permissions</string>
+    <string name="exact_alarms">Exact alarms</string>
+    <string name="exact_alarms_desc">Required for the timer to fire on schedule while the TV is idle.</string>
+    <string name="battery_exemption">Ignore battery optimisation</string>
+    <string name="battery_exemption_desc">Stops the system from parking TasksKiller in a standby bucket.</string>
+    <string name="overlay_permission">Display over other apps</string>
+    <string name="overlay_permission_desc">Grants the exemption that lets a relaunch start from the background.</string>
+    <string name="granted">Granted</string>
+    <string name="not_granted">Not granted</string>
+    <string name="fix">Fix</string>
+    <string name="setting_unavailable">This TV has no screen for that setting — use the ADB command below.</string>
+
+    <string name="adb_header">One-time ADB setup</string>
+    <string name="adb_body">Connect with <b>adb connect &lt;tv-ip&gt;:5555</b>, then run whichever block matches how you want the kill to work.\n\n<b>Shizuku (recommended, no root)</b>\nInstall Shizuku on the TV, then each boot run:\n  adb shell sh /storage/emulated/0/Android/data/moe.shizuku.privileged.api/start.sh\nOpen TasksKiller and choose \"Grant Shizuku permission\".\n\n<b>Device owner (survives reboots, no root)</b>\nOn a box with no accounts added:\n  adb shell dpm set-device-owner com.thefactor1.taskskiller/.kill.AdminReceiver\n\n<b>Permissions that have no TV settings screen</b>\n  adb shell appops set com.thefactor1.taskskiller SYSTEM_ALERT_WINDOW allow\n  adb shell dumpsys deviceidle whitelist +com.thefactor1.taskskiller\n\n<b>Root</b>\nNothing to do — grant TasksKiller root when your superuser app asks.</string>
+
+    <string name="warning_weak_backend">Only background-process killing is available. Apps with a foreground service — most VPNs — will survive it. Set up Shizuku, device owner or root for a real force-stop.</string>
+    <string name="warning_background_launch">\"Display over other apps\" is not granted and no privileged method is active, so relaunches may be silently dropped by the system.</string>
+</resources>

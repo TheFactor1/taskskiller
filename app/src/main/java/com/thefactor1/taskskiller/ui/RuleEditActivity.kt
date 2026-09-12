@@ -81,6 +81,9 @@ class RuleEditActivity : AppCompatActivity() {
             relaunchDelayMs = binding.delaySeek.progress * DELAY_STEP_MS,
             wakeScreen = binding.wakeScreenSwitch.isChecked,
             skipWhileScreenOn = binding.skipScreenOnSwitch.isChecked,
+            // Keep the original anchor across edits so changing an option does
+            // not restart the countdown of a rule that has not fired yet.
+            anchorAt = current?.anchorAt?.takeIf { it > 0L } ?: System.currentTimeMillis(),
             lastRunAt = current?.lastRunAt ?: 0L,
             lastResult = current?.lastResult ?: ""
         )

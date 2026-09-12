@@ -84,9 +84,13 @@
             android:name=".ui.SetupActivity"
             android:exported="false" />
 
+        <!-- directBootAware so an alarm that lands before the first unlock can
+             still be serviced; all state it touches lives in device-protected
+             storage. -->
         <service
             android:name=".schedule.RestartService"
             android:exported="false"
+            android:directBootAware="true"
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
@@ -95,7 +99,8 @@
 
         <receiver
             android:name=".schedule.RestartAlarmReceiver"
-            android:exported="false" />
+            android:exported="false"
+            android:directBootAware="true" />
 
         <receiver
             android:name=".schedule.BootReceiver"

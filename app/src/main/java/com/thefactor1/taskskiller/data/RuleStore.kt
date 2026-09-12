@@ -8,9 +8,15 @@ import org.json.JSONException
 /**
  * Rules live in a JSON blob inside device-protected SharedPreferences, so the
  * boot receiver can read them before the user unlocks the device.
+ *
+ * Every mutation is a read-modify-write of that single blob, and the UI thread
+ * and the restart worker both perform them, so the mutators are synchronized:
+ * without that, a run recording its result would silently drop an edit the user
+ * made at the same moment, or vice versa.
  */
 class RuleStore private constructor(private val prefs: SharedPreferences) {
 
+    @Synchronized
     fun all(): List<Rule> {
         val raw = prefs.getString(KEY_RULES, null) ?: return emptyList()
         return try {
@@ -31,6 +37,7 @@ class RuleStore private constructor(private val prefs: SharedPreferences) {
 
     fun find(id: Long): Rule? = all().firstOrNull { it.id == id }
 
+    @Synchronized
     fun upsert(rule: Rule) {
         val rules = all().toMutableList()
         val index = rules.indexOfFirst { it.id == rule.id }
@@ -38,9 +45,26 @@ class RuleStore private constructor(private val prefs: SharedPreferences) {
         write(rules)
     }
 
+    @Synchronized
     fun delete(id: Long) = write(all().filterNot { it.id == id })
 
     fun nextId(): Long = (all().maxOfOrNull { it.id } ?: 0L) + 1L
+
+    /**
+     * Stamp an anchor on any rule that has neither run nor been anchored, and
+     * return the current rule set. This is what makes the next-run time stable
+     * across repeated schedule rebuilds; see [Rule.anchorAt].
+     */
+    @Synchronized
+    fun backfillAnchors(now: Long): List<Rule> {
+        val rules = all()
+        if (rules.none { it.anchorAt <= 0L && it.lastRunAt <= 0L }) return rules
+        val patched = rules.map {
+            if (it.anchorAt <= 0L && it.lastRunAt <= 0L) it.copy(anchorAt = now) else it
+        }
+        write(patched)
+        return patched
+    }
 
     /** Global kill switch, so the user can pause everything without editing rules. */
     var masterEnabled: Boolean
@@ -51,6 +75,7 @@ class RuleStore private constructor(private val prefs: SharedPreferences) {
         get() = prefs.getString(KEY_BACKEND, BACKEND_AUTO) ?: BACKEND_AUTO
         set(value) = prefs.edit().putString(KEY_BACKEND, value).apply()
 
+    @Synchronized
     private fun write(rules: List<Rule>) {
         val array = JSONArray()
         rules.sortedBy { it.id }.forEach { array.put(it.toJson()) }

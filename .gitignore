@@ -9,3 +9,7 @@ captures/
 .cxx/
 *.apk
 *.keystore
+
+# The shared debug key is committed on purpose so every machine and CI sign
+# debug builds alike; any other keystore (e.g. a release key) stays ignored.
+!app/debug.keystore

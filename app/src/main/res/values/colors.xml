@@ -26,6 +26,7 @@
     <color name="glow_inner">#8C7FB2FF</color>
     <color name="glow_white_outer">#33FFFFFF</color>
     <color name="glow_white_inner">#80FFFFFF</color>
+    <color name="log_row_focused">#247FB2FF</color>
 
     <color name="text_primary">#FFF2F5FA</color>
     <color name="text_secondary">#FFA8B3C7</color>

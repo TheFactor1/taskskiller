@@ -26,11 +26,10 @@ object AppLauncher {
         // privileged path is broken, which is the thing worth fixing.
         val privilegedFailure = privileged?.detail?.takeIf { it.isNotBlank() }
 
+        // The privileged path fails for this same reason, so its message would
+        // only repeat this one.
         val intent = PackageUtil.launchIntent(context, packageName)
-            ?: return OpResult.fail(
-                listOfNotNull("$packageName has no launchable activity", privilegedFailure)
-                    .joinToString("; ")
-            )
+            ?: return OpResult.fail("$packageName has no launchable activity")
 
         intent.addFlags(
             Intent.FLAG_ACTIVITY_NEW_TASK or

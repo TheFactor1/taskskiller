@@ -3,6 +3,7 @@ package com.thefactor1.taskskiller.ui
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewOutlineProvider
 import androidx.appcompat.app.AppCompatActivity
 import com.thefactor1.taskskiller.databinding.ActivityAppPickerBinding
 import com.thefactor1.taskskiller.util.PackageUtil
@@ -28,6 +29,9 @@ class AppPickerActivity : AppCompatActivity() {
             finish()
         }
         binding.appRecycler.layoutManager = CenteringLayoutManager(this)
+        // Rows are clipped to the list so they cannot scroll over the switch above.
+        binding.appRecycler.outlineProvider = ViewOutlineProvider.BOUNDS
+        binding.appRecycler.clipToOutline = true
         binding.appRecycler.adapter = adapter
 
         binding.systemAppsSwitch.setOnCheckedChangeListener { _, _ -> applyFilter() }

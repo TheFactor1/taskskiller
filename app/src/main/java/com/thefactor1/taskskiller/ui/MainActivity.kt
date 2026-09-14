@@ -7,10 +7,10 @@ import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewOutlineProvider
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.thefactor1.taskskiller.R
 import com.thefactor1.taskskiller.data.RuleStore
 import com.thefactor1.taskskiller.data.RunLog
@@ -53,9 +53,21 @@ class MainActivity : AppCompatActivity() {
         logAdapter = LogAdapter()
 
         binding.rulesRecycler.layoutManager = CenteringLayoutManager(this)
+        // Rows are clipped to the list itself so they cannot scroll over the
+        // header; clipping the whole column instead cut off buttons' focus lift.
+        binding.rulesRecycler.outlineProvider = ViewOutlineProvider.BOUNDS
+        binding.rulesRecycler.clipToOutline = true
         binding.rulesRecycler.adapter = ruleAdapter
-        binding.logRecycler.layoutManager = LinearLayoutManager(this)
+        binding.logRecycler.layoutManager = CenteringLayoutManager(this)
         binding.logRecycler.adapter = logAdapter
+
+        // Only the rows take focus. RecyclerView makes itself focusable in its
+        // constructor, and an empty list would otherwise swallow the D-pad
+        // invisibly (right from a rule landing on nothing).
+        listOf(binding.rulesRecycler, binding.logRecycler).forEach {
+            it.isFocusable = false
+            it.isFocusableInTouchMode = false
+        }
 
         binding.addRuleButton.setOnClickListener {
             pickAppLauncher.launch(Intent(this, AppPickerActivity::class.java))

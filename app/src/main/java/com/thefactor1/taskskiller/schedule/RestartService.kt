@@ -117,7 +117,11 @@ class RestartService : Service() {
         )
         if (killResult.success && killResult.detail.isNotBlank()) parts += killResult.detail
 
-        if (rule.relaunch) {
+        if (rule.relaunch && PackageUtil.launchIntent(this, rule.packageName) == null) {
+            // A kill-only app (no launcher entry): there is nothing to relaunch,
+            // which is expected rather than a failure.
+            parts += "not relaunched (no launcher entry)"
+        } else if (rule.relaunch) {
             SystemClock.sleep(rule.relaunchDelayMs.coerceIn(0L, MAX_RELAUNCH_DELAY_MS))
             if (rule.wakeScreen) ScreenUtil.wakeScreen(this, backend)
             val launchResult = AppLauncher.launch(this, backend, rule.packageName)

@@ -24,11 +24,14 @@ object ShizukuStarter {
 
     fun isInstalled(context: Context): Boolean = startCommand(context) != null
 
+    /** Printed by [startCommand] when the server was already up, so nothing was started. */
+    private const val ALREADY_RUNNING = "shizuku-already-running"
+
     /**
      * Shizuku 13 ships its starter as a native library inside the APK; older
      * releases wrote start.sh to external storage instead. The shell picks
-     * whichever exists, so the path follows Shizuku updates, and the `pidof`
-     * guard leaves an already-running server alone rather than restarting it.
+     * whichever exists, so the path follows Shizuku updates. An already-running
+     * server is left alone rather than restarted, and says so.
      */
     fun startCommand(context: Context): String? {
         val info = try {
@@ -38,9 +41,13 @@ object ShizukuStarter {
         }
         val library = "${info.nativeLibraryDir}/libshizuku.so"
         val legacyScript = "/storage/emulated/0/Android/data/$PACKAGE/start.sh"
-        return "pidof shizuku_server >/dev/null || " +
-            "{ if [ -f '$library' ]; then '$library'; else sh '$legacyScript'; fi; }"
+        return "if pidof shizuku_server >/dev/null; then echo $ALREADY_RUNNING; " +
+            "elif [ -f '$library' ]; then '$library'; else sh '$legacyScript'; fi"
     }
+
+    fun wasAlreadyRunning(step: Step): Boolean = step.ok && step.detail == DETAIL_ALREADY_RUNNING
+
+    private const val DETAIL_ALREADY_RUNNING = "already running"
 
     /** The one-off grants from the manual ADB instructions, for this Android version. */
     fun settingsCommands(context: Context): List<String> {
@@ -72,6 +79,7 @@ object ShizukuStarter {
                 val result = shell.exec(start)
                 when {
                     !result.success -> Step("Start Shizuku", false, result.output)
+                    ALREADY_RUNNING in result.output -> Step("Start Shizuku", true, DETAIL_ALREADY_RUNNING)
                     awaitBinder() -> Step("Start Shizuku", true)
                     else -> Step("Start Shizuku", true, "started, but it has not answered TasksKiller yet")
                 }
@@ -92,7 +100,11 @@ object ShizukuStarter {
         var step = Step("Start Shizuku", false, "no result")
         val setupError = LocalAdb.session(context, LocalAdb.BACKGROUND_TIMEOUT_MS) { shell ->
             val result = shell.exec(start)
-            step = Step("Start Shizuku", result.success, if (result.success) "" else result.output)
+            step = when {
+                !result.success -> Step("Start Shizuku", false, result.output)
+                ALREADY_RUNNING in result.output -> Step("Start Shizuku", true, DETAIL_ALREADY_RUNNING)
+                else -> Step("Start Shizuku", true)
+            }
         }
         return if (setupError != null) Step("Start Shizuku", false, setupError) else step
     }

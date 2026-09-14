@@ -27,6 +27,11 @@ class ShizukuStartReceiver : BroadcastReceiver() {
                 if (!RuleStore.get(context).autoStartShizuku) return@Thread
                 val step = ShizukuStarter.startInBackground(context)
                 when {
+                    // Android also sends BOOT_COMPLETED after an app update on
+                    // some boxes (seen on the Shield), so this often finds the
+                    // server already up; that is not worth a log entry.
+                    ShizukuStarter.wasAlreadyRunning(step) ->
+                        Log.i(TAG, "Shizuku already running (attempt $attempt)")
                     step.ok -> {
                         Log.i(TAG, "Shizuku running after boot (attempt $attempt)")
                         RunLog.get(context).add("Shizuku", "Started automatically after boot", true)

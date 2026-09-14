@@ -5,18 +5,20 @@
     android:clipChildren="false"
     android:clipToPadding="false"
     android:orientation="horizontal"
-    android:paddingStart="36dp"
-    android:paddingTop="28dp"
-    android:paddingEnd="36dp"
-    android:paddingBottom="24dp">
+    android:paddingStart="48dp"
+    android:paddingTop="32dp"
+    android:paddingEnd="48dp"
+    android:paddingBottom="28dp">
 
-    <!-- Left: what the app does and the rules it runs. This column clips its
-         children to their bounds, which is what keeps scrolled rule rows from
-         drawing over the header; each child leaves room for its focus lift. -->
+    <!-- Left: what the app does and the rules it runs. Nothing here clips, so
+         every button's focus lift shows in full; the rule list clips its own
+         rows (outline clip in MainActivity) so they cannot scroll over the
+         header. -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1.35"
+        android:clipChildren="false"
         android:clipToPadding="false"
         android:orientation="vertical">
 
@@ -208,27 +210,26 @@
                 android:text="@string/clear_log" />
         </LinearLayout>
 
-        <!-- The log is read-only. RecyclerView makes itself focusable in its
-             constructor, overriding focusable="false" on the list itself, so the
-             card blocks focus for everything inside it; otherwise D-pad right
-             from a rule lands on the list instead of on Clear log. -->
+        <!-- Log rows take focus one at a time so the D-pad can scroll the whole
+             history; the list itself never takes focus (see MainActivity). -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_marginTop="6dp"
             android:layout_weight="1"
             android:background="@drawable/bg_card"
-            android:descendantFocusability="blocksDescendants"
-            android:paddingStart="20dp"
-            android:paddingTop="14dp"
-            android:paddingEnd="20dp"
-            android:paddingBottom="14dp">
+            android:paddingStart="12dp"
+            android:paddingTop="12dp"
+            android:paddingEnd="12dp"
+            android:paddingBottom="12dp">
 
             <TextView
                 android:id="@+id/emptyLogText"
                 style="@style/Body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingStart="12dp"
+                android:paddingTop="8dp"
                 android:text="@string/no_activity"
                 android:visibility="gone" />
 

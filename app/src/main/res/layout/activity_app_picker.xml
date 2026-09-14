@@ -2,31 +2,43 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:clipToPadding="false"
     android:orientation="vertical"
-    android:background="@color/background"
-    android:padding="32dp">
+    android:paddingStart="40dp"
+    android:paddingTop="28dp"
+    android:paddingEnd="40dp">
 
     <TextView
+        style="@style/ScreenTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/pick_app_title"
-        android:textColor="@color/text_primary"
-        android:textSize="24sp"
-        android:textStyle="bold" />
+        android:layout_marginStart="4dp"
+        android:text="@string/pick_app_title" />
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/systemAppsSwitch"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:focusable="true"
-        android:text="@string/show_system_apps"
-        android:textColor="@color/text_primary" />
+        android:layout_marginTop="14dp"
+        android:text="@string/show_system_apps" />
 
+    <!-- Rows are clipped to the list so they cannot scroll over the switch
+         above; the list reaches 12dp past the column on each side, padded back
+         in, so a row's focus lift still has room without being cut off. -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appRecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginStart="-12dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="-12dp"
         android:layout_weight="1"
-        android:layout_marginTop="12dp" />
+        android:clipToPadding="false"
+        android:fadingEdgeLength="40dp"
+        android:overScrollMode="never"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="24dp"
+        android:requiresFadingEdge="vertical" />
 </LinearLayout>

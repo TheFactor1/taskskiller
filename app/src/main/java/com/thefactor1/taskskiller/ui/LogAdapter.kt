@@ -1,5 +1,6 @@
 package com.thefactor1.taskskiller.ui
 
+import android.content.res.ColorStateList
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -29,7 +30,7 @@ class LogAdapter : RecyclerView.Adapter<LogAdapter.ViewHolder>() {
         val context = holder.itemView.context
         holder.binding.logHeadline.text =
             "${Format.timestamp(context, entry.timestamp)}  ${entry.label}"
-        holder.binding.logHeadline.setTextColor(
+        holder.binding.logDot.backgroundTintList = ColorStateList.valueOf(
             ContextCompat.getColor(context, if (entry.success) R.color.ok else R.color.bad)
         )
         holder.binding.logDetail.text = entry.detail

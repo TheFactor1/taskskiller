@@ -1,5 +1,6 @@
 package com.thefactor1.taskskiller.ui
 
+import android.animation.AnimatorInflater
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -127,6 +128,20 @@ class SetupActivity : AppCompatActivity() {
             button = binding.overlayButton,
             settingExists = true
         )
+
+        // With every Fix button hidden there is nothing to press in that box,
+        // so the box itself takes focus; otherwise the D-pad would skip it.
+        val nothingToFix = listOf(binding.exactAlarmButton, binding.batteryButton, binding.overlayButton)
+            .none { it.visibility == View.VISIBLE }
+        setCardFocusable(binding.permissionsCard, nothingToFix)
+    }
+
+    private fun setCardFocusable(card: View, focusable: Boolean) {
+        if (card.isFocusable == focusable) return
+        card.isFocusable = focusable
+        card.setBackgroundResource(if (focusable) R.drawable.focusable_item else R.drawable.bg_card_group)
+        card.stateListAnimator =
+            if (focusable) AnimatorInflater.loadStateListAnimator(this, R.animator.focus_lift_card) else null
     }
 
     /**

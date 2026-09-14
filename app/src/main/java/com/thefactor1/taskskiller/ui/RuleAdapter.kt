@@ -8,6 +8,7 @@ import com.thefactor1.taskskiller.data.Rule
 import com.thefactor1.taskskiller.databinding.ItemRuleBinding
 import com.thefactor1.taskskiller.schedule.RestartScheduler
 import com.thefactor1.taskskiller.util.Format
+import com.thefactor1.taskskiller.util.PackageUtil
 
 class RuleAdapter(
     private val onClick: (Rule) -> Unit
@@ -33,6 +34,7 @@ class RuleAdapter(
         val context = holder.itemView.context
 
         holder.binding.ruleLabel.text = rule.label
+        holder.binding.ruleIcon.setImageDrawable(PackageUtil.icon(context, rule.packageName))
 
         val schedule = context.getString(
             R.string.every_interval, Format.interval(rule.intervalMinutes)

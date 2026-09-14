@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- In-app logo: the restart glyph on a rounded accent tile, matching the
+     primary buttons. (ic_launcher keeps its square for the TV home screen.) -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="12dp" />
+            <gradient
+                android:angle="315"
+                android:startColor="@color/accent"
+                android:endColor="@color/accent_deep" />
+        </shape>
+    </item>
+    <item
+        android:width="26dp"
+        android:height="26dp"
+        android:drawable="@drawable/ic_restart"
+        android:gravity="center" />
+</layer-list>

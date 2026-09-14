@@ -1,12 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="background">#FF10141C</color>
-    <color name="surface">#FF1A2130</color>
-    <color name="surface_focused">#FF2E3A52</color>
+    <!-- Window: a deep blue gradient rather than a flat fill. -->
+    <color name="background">#FF0B1020</color>
+    <color name="background_top">#FF17223C</color>
+    <color name="background_bottom">#FF070A12</color>
+    <color name="background_light">#2E5B8CE8</color>
+
+    <!-- Cards: a gentle top-to-bottom gradient reads as depth on a TV. -->
+    <color name="surface">#FF182132</color>
+    <color name="surface_top">#FF1E2A40</color>
+    <color name="surface_bottom">#FF141B2A</color>
+    <color name="surface_focused">#FF26365A</color>
+    <color name="surface_focused_top">#FF2C3F66</color>
+    <color name="surface_focused_bottom">#FF1F2C49</color>
+    <color name="surface_inset">#FF0E1422</color>
+    <color name="surface_glass">#1CFFFFFF</color>
+    <color name="hairline">#1FFFFFFF</color>
+    <color name="hairline_strong">#40FFFFFF</color>
+
+    <!-- Accent, and the two rings of the focus glow. -->
     <color name="accent">#FF7FB2FF</color>
+    <color name="accent_bright">#FFB0D0FF</color>
+    <color name="accent_deep">#FF4A7ADF</color>
+    <color name="accent_border_soft">#667FB2FF</color>
+    <color name="glow_outer">#387FB2FF</color>
+    <color name="glow_inner">#8C7FB2FF</color>
+    <color name="glow_white_outer">#33FFFFFF</color>
+    <color name="glow_white_inner">#80FFFFFF</color>
+
     <color name="text_primary">#FFF2F5FA</color>
     <color name="text_secondary">#FFA8B3C7</color>
+    <color name="text_on_accent">#FF0A1428</color>
+
     <color name="ok">#FF6FD48A</color>
     <color name="warn">#FFF0B457</color>
     <color name="bad">#FFFF8A80</color>
+    <color name="bad_deep">#FFC4483F</color>
+    <color name="bad_soft">#33FF8A80</color>
+    <color name="bad_border">#66FF8A80</color>
+    <color name="glow_bad_outer">#38FF8A80</color>
+    <color name="glow_bad_inner">#8CFF8A80</color>
 </resources>

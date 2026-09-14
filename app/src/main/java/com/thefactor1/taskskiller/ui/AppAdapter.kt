@@ -1,5 +1,6 @@
 package com.thefactor1.taskskiller.ui
 
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +13,9 @@ class AppAdapter(
 ) : RecyclerView.Adapter<AppAdapter.ViewHolder>() {
 
     private var apps: List<PackageUtil.InstalledApp> = emptyList()
+
+    /** Icon lookups go through PackageManager; keep them while the list scrolls. */
+    private val icons = HashMap<String, Drawable?>()
 
     fun submit(apps: List<PackageUtil.InstalledApp>) {
         this.apps = apps
@@ -29,6 +33,9 @@ class AppAdapter(
         val context = holder.itemView.context
 
         holder.binding.appLabel.text = app.label
+        holder.binding.appIcon.setImageDrawable(
+            icons.getOrPut(app.packageName) { PackageUtil.icon(context, app.packageName) }
+        )
 
         val tags = buildList {
             add(app.packageName)

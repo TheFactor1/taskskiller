@@ -3,6 +3,7 @@ package com.thefactor1.taskskiller.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.os.Build
 import android.os.Bundle
 import android.view.View
@@ -51,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         }
         logAdapter = LogAdapter()
 
-        binding.rulesRecycler.layoutManager = LinearLayoutManager(this)
+        binding.rulesRecycler.layoutManager = CenteringLayoutManager(this)
         binding.rulesRecycler.adapter = ruleAdapter
         binding.logRecycler.layoutManager = LinearLayoutManager(this)
         binding.logRecycler.adapter = logAdapter
@@ -98,7 +99,11 @@ class MainActivity : AppCompatActivity() {
         binding.emptyLogText.visibility = if (entries.isEmpty()) View.VISIBLE else View.GONE
 
         val backend = KillBackends.resolve(this)
-        binding.backendText.text = getString(R.string.active_backend, backend.displayName)
+        // The card is already labelled "Kill method", so just name it.
+        binding.backendText.text = backend.displayName
+        binding.statusDot.backgroundTintList = ColorStateList.valueOf(
+            ContextCompat.getColor(this, if (backend.isForceStop) R.color.ok else R.color.warn)
+        )
 
         val warning = when {
             !backend.isForceStop -> getString(R.string.warning_weak_backend)

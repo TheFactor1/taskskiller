@@ -37,6 +37,7 @@ class RuleEditActivity : AppCompatActivity() {
 
         binding.appLabelText.text = existing?.label ?: PackageUtil.label(this, targetPackage)
         binding.appPackageText.text = targetPackage
+        binding.appIcon.setImageDrawable(PackageUtil.icon(this, targetPackage))
 
         setUpIntervalSeek()
         setUpDelaySeek()

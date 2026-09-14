@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 
 object PackageUtil {
 
@@ -27,6 +28,13 @@ object PackageUtil {
         true
     } catch (e: PackageManager.NameNotFoundException) {
         false
+    }
+
+    /** The app's icon for list rows; null if it was uninstalled since the list was built. */
+    fun icon(context: Context, packageName: String): Drawable? = try {
+        context.packageManager.getApplicationIcon(packageName)
+    } catch (e: PackageManager.NameNotFoundException) {
+        null
     }
 
     fun label(context: Context, packageName: String): String = try {

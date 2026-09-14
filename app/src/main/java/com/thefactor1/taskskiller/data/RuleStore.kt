@@ -75,6 +75,11 @@ class RuleStore private constructor(private val prefs: SharedPreferences) {
         get() = prefs.getString(KEY_BACKEND, BACKEND_AUTO) ?: BACKEND_AUTO
         set(value) = prefs.edit().putString(KEY_BACKEND, value).apply()
 
+    /** Start Shizuku over the box's own network debugging after every reboot. */
+    var autoStartShizuku: Boolean
+        get() = prefs.getBoolean(KEY_AUTO_START_SHIZUKU, false)
+        set(value) = prefs.edit().putBoolean(KEY_AUTO_START_SHIZUKU, value).apply()
+
     @Synchronized
     private fun write(rules: List<Rule>) {
         val array = JSONArray()
@@ -87,6 +92,7 @@ class RuleStore private constructor(private val prefs: SharedPreferences) {
         private const val KEY_RULES = "rules"
         private const val KEY_MASTER = "master_enabled"
         private const val KEY_BACKEND = "preferred_backend"
+        private const val KEY_AUTO_START_SHIZUKU = "auto_start_shizuku"
 
         const val BACKEND_AUTO = "auto"
 

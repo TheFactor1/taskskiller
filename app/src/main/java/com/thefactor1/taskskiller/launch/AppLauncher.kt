@@ -1,7 +1,9 @@
 package com.thefactor1.taskskiller.launch
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import com.thefactor1.taskskiller.kill.KillBackend
@@ -48,6 +50,36 @@ object AppLauncher {
             if (notes.isEmpty()) OpResult.OK else OpResult(true, notes.joinToString("; "))
         } catch (e: SecurityException) {
             OpResult.fail("Background activity start blocked: ${e.message}")
+        } catch (e: Exception) {
+            OpResult.fail("startActivity failed: ${e.message}")
+        }
+    }
+
+    /**
+     * Brings the default launcher back to the front. Starting an activity does
+     * not wake the display, whereas a HOME key press is simply dropped by a
+     * sleeping TV. The launcher is resolved explicitly: with no default set, a
+     * bare HOME intent would leave an app chooser waiting for when the TV wakes.
+     */
+    fun goHome(context: Context, backend: KillBackend): OpResult {
+        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        val launcher = context.packageManager
+            .resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY)
+            ?.activityInfo
+            ?: return OpResult.fail("no launcher found")
+        // The system's chooser answers for HOME when no default launcher is set.
+        if (launcher.packageName == "android") return OpResult.fail("no default launcher is set")
+        val component = ComponentName(launcher.packageName, launcher.name)
+
+        backend.shell(context, arrayOf("am", "start", "-n", component.flattenToShortString()))
+            ?.takeIf { it.success }
+            ?.let { return it }
+
+        return try {
+            context.startActivity(
+                Intent(home).setComponent(component).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            )
+            OpResult.OK
         } catch (e: Exception) {
             OpResult.fail("startActivity failed: ${e.message}")
         }

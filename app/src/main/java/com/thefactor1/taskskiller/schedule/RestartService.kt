@@ -106,6 +106,9 @@ class RestartService : Service() {
             return
         }
 
+        // Sampled before the kill: the question is whether anyone was watching.
+        val displayWasOff = !ScreenUtil.isScreenOn(this)
+
         val backend = KillBackends.resolve(this)
         val killResult = backend.kill(this, rule.packageName)
         val parts = mutableListOf(
@@ -122,6 +125,18 @@ class RestartService : Service() {
                 if (launchResult.detail.isBlank()) "relaunched" else "relaunched (${launchResult.detail})"
             } else {
                 "relaunch failed: ${launchResult.detail}"
+            }
+
+            // Relaunched into a sleeping TV: once the app has had time to start
+            // (a VPN reconnects meanwhile), put the launcher back on top so the
+            // TV wakes up to the home screen instead of to that app. Skipped if
+            // someone turned the TV on in the meantime.
+            if (launchResult.success && displayWasOff && !rule.wakeScreen) {
+                SystemClock.sleep(HOME_RETURN_DELAY_MS)
+                if (!ScreenUtil.isScreenOn(this)) {
+                    val home = AppLauncher.goHome(this, backend)
+                    parts += if (home.success) "returned to Home" else "could not return to Home: ${home.detail}"
+                }
             }
         }
 
@@ -227,6 +242,9 @@ class RestartService : Service() {
 
         private const val WAKE_LOCK_TIMEOUT_MS = 3 * 60_000L
         private const val MAX_RELAUNCH_DELAY_MS = 60_000L
+
+        /** Time the relaunched app gets in front before the launcher is brought back. */
+        private const val HOME_RETURN_DELAY_MS = 15_000L
 
         /** How soon to look again after deferring a run because the TV was in use. */
         private const val DEFER_RETRY_MS = 5 * 60_000L

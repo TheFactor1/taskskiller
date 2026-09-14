@@ -61,8 +61,23 @@
     <string name="fix">Fix</string>
     <string name="setting_unavailable">This TV has no screen for that setting — use the ADB command below.</string>
 
-    <string name="adb_header">One-time ADB setup</string>
-    <string name="adb_body">Connect with <b>adb connect &lt;tv-ip&gt;:5555</b>, then run whichever block matches how you want the kill to work.\n\n<b>Shizuku (recommended, no root)</b>\nInstall Shizuku on the TV, then each boot run:\n  adb shell sh /storage/emulated/0/Android/data/moe.shizuku.privileged.api/start.sh\nOpen TasksKiller and choose \"Grant Shizuku permission\".\n\n<b>Device owner (survives reboots, no root)</b>\nOn a box with no accounts added:\n  adb shell dpm set-device-owner com.thefactor1.taskskiller/.kill.AdminReceiver\n\n<b>Permissions that have no TV settings screen</b>\n  adb shell appops set com.thefactor1.taskskiller SYSTEM_ALERT_WINDOW allow\n  adb shell dumpsys deviceidle whitelist +com.thefactor1.taskskiller\n\n<b>Root</b>\nNothing to do — grant TasksKiller root when your superuser app asks.</string>
+    <string name="shizuku_header">Shizuku</string>
+    <string name="get_shizuku">Get Shizuku</string>
+    <string name="update_shizuku">Update Shizuku</string>
+    <string name="auto_setup">Set up automatically</string>
+    <string name="auto_setup_desc">Connects to this TV\'s own network debugging, starts Shizuku and applies the settings the TV has no screen for. The first time, the TV asks \"Allow network debugging?\": tick Always allow, then Allow.</string>
+    <string name="auto_setup_running">Setting up… If the TV asks to allow network debugging, tick Always allow and choose Allow.</string>
+    <string name="auto_setup_done">Setup finished.</string>
+    <string name="auto_setup_failed">Setup did not finish. See the steps below.</string>
+    <string name="auto_start_shizuku">Start Shizuku automatically after a reboot</string>
+    <string name="shizuku_status_missing">Shizuku is not installed.</string>
+    <string name="shizuku_status_stopped">Shizuku is installed but not running.</string>
+    <string name="shizuku_status_no_permission">Shizuku is running; TasksKiller still needs its permission.</string>
+    <string name="shizuku_status_ready">Shizuku is running and TasksKiller has its permission.</string>
+    <string name="shizuku_store_unavailable">No app store on this TV could open Shizuku. Download it from %1$s</string>
+
+    <string name="adb_header">Manual setup from a computer (only if automatic setup cannot connect)</string>
+    <string name="adb_body">Connect with <b>adb connect &lt;tv-ip&gt;:5555</b>, then run whichever block matches how you want the kill to work.\n\n<b>Shizuku (recommended, no root)</b>\nInstall Shizuku on the TV, then after each reboot run:\n  adb shell \'$(dirname $(pm path moe.shizuku.privileged.api | cut -d: -f2))/lib/arm64/libshizuku.so\'\nOpen TasksKiller and choose \"Grant Shizuku permission\".\n\n<b>Device owner (survives reboots, no root)</b>\nOn a box with no accounts added:\n  adb shell dpm set-device-owner com.thefactor1.taskskiller/.kill.AdminReceiver\n\n<b>Permissions that have no TV settings screen</b>\n  adb shell appops set com.thefactor1.taskskiller SYSTEM_ALERT_WINDOW allow\n  adb shell dumpsys deviceidle whitelist +com.thefactor1.taskskiller\n\n<b>Root</b>\nNothing to do — grant TasksKiller root when your superuser app asks.</string>
 
     <string name="warning_weak_backend">Only background-process killing is available. Apps with a foreground service — most VPNs — will survive it. Set up Shizuku, device owner or root for a real force-stop.</string>
     <string name="warning_background_launch">\"Display over other apps\" is not granted and no privileged method is active, so relaunches may be silently dropped by the system.</string>

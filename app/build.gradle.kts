@@ -60,4 +60,8 @@ dependencies {
     // ADB handshake, with no root required.
     implementation("dev.rikka.shizuku:api:13.1.5")
     implementation("dev.rikka.shizuku:provider:13.1.5")
+
+    // dadb: speaks the ADB wire protocol directly, so the app can reach the
+    // box's own network-debugging port and start Shizuku without a computer.
+    implementation("dev.mobile:dadb:2.0.0")
 }

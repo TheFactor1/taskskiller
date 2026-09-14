@@ -44,7 +44,9 @@ class RuleEditActivity : AppCompatActivity() {
         binding.enabledSwitch.isChecked = existing?.enabled ?: true
         binding.relaunchSwitch.isChecked = existing?.relaunch ?: true
         binding.wakeScreenSwitch.isChecked = existing?.wakeScreen ?: false
-        binding.skipScreenOnSwitch.isChecked = existing?.skipWhileScreenOn ?: false
+        // New rules default to waiting for the TV to sleep, so a restart never
+        // lands in the middle of whatever is being watched.
+        binding.skipScreenOnSwitch.isChecked = existing?.skipWhileScreenOn ?: true
 
         binding.deleteButton.visibility = if (existing == null) View.GONE else View.VISIBLE
         binding.runNowButton.visibility = if (existing == null) View.GONE else View.VISIBLE

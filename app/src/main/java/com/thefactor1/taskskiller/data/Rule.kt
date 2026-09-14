@@ -21,8 +21,11 @@ data class Rule(
     val relaunchDelayMs: Long = 3_000L,
     /** Turn the display on for the relaunch. Off keeps the TV asleep. */
     val wakeScreen: Boolean = false,
-    /** Skip the run when the display is on, so a restart never interrupts viewing. */
-    val skipWhileScreenOn: Boolean = false,
+    /**
+     * Skip the run when the display is on, so a restart never interrupts
+     * viewing. On by default: restarting mid-film is the thing to avoid.
+     */
+    val skipWhileScreenOn: Boolean = true,
     /**
      * When the countdown started for a rule that has not run yet. Without a
      * persisted anchor the "first run" time would be recomputed as
@@ -85,7 +88,7 @@ data class Rule(
             relaunch = json.optBoolean(KEY_RELAUNCH, true),
             relaunchDelayMs = json.optLong(KEY_RELAUNCH_DELAY, 3_000L),
             wakeScreen = json.optBoolean(KEY_WAKE_SCREEN, false),
-            skipWhileScreenOn = json.optBoolean(KEY_SKIP_SCREEN_ON, false),
+            skipWhileScreenOn = json.optBoolean(KEY_SKIP_SCREEN_ON, true),
             anchorAt = json.optLong(KEY_ANCHOR, 0L),
             lastRunAt = json.optLong(KEY_LAST_RUN, 0L),
             lastResult = json.optString(KEY_LAST_RESULT, "")

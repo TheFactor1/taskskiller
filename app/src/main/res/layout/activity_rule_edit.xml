@@ -168,11 +168,14 @@
                 android:layout_marginTop="6dp"
                 android:text="@string/rule_skip_screen_on" />
 
+            <!-- Down from here must reach Save: left to the focus search it
+                 picks Delete, the button nearest the middle of the screen. -->
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/wakeScreenSwitch"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
+                android:nextFocusDown="@id/saveButton"
                 android:text="@string/rule_wake_screen" />
         </LinearLayout>
 

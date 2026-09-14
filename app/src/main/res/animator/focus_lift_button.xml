@@ -7,13 +7,13 @@
                 android:duration="170"
                 android:interpolator="@android:interpolator/decelerate_cubic"
                 android:propertyName="scaleX"
-                android:valueTo="1.06"
+                android:valueTo="1.04"
                 android:valueType="floatType" />
             <objectAnimator
                 android:duration="170"
                 android:interpolator="@android:interpolator/decelerate_cubic"
                 android:propertyName="scaleY"
-                android:valueTo="1.06"
+                android:valueTo="1.04"
                 android:valueType="floatType" />
         </set>
     </item>

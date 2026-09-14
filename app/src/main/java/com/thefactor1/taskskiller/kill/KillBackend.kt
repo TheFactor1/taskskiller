@@ -51,4 +51,10 @@ interface KillBackend {
      * side errands like waking the display. Null means "no shell here".
      */
     fun shell(context: Context, command: Array<String>): OpResult? = null
+
+    /**
+     * Like [shell] but returns what the command printed; null if it failed or
+     * this backend has no shell. Used to see which app is on screen.
+     */
+    fun shellOutput(context: Context, command: Array<String>): String? = null
 }

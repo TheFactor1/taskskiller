@@ -11,8 +11,7 @@
     android:paddingStart="22dp"
     android:paddingTop="18dp"
     android:paddingEnd="22dp"
-    android:paddingBottom="18dp"
-    android:stateListAnimator="@animator/focus_lift_card">
+    android:paddingBottom="18dp">
 
     <ImageView
         android:id="@+id/ruleIcon"

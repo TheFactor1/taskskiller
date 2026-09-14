@@ -22,6 +22,7 @@ import com.thefactor1.taskskiller.data.RunLog
 import com.thefactor1.taskskiller.kill.KillBackends
 import com.thefactor1.taskskiller.launch.AppLauncher
 import com.thefactor1.taskskiller.ui.MainActivity
+import com.thefactor1.taskskiller.util.ForegroundApp
 import com.thefactor1.taskskiller.util.PackageUtil
 import com.thefactor1.taskskiller.util.ScreenUtil
 import java.util.concurrent.Executors
@@ -110,6 +111,12 @@ class RestartService : Service() {
         val displayWasOff = !ScreenUtil.isScreenOn(this)
 
         val backend = KillBackends.resolve(this)
+
+        // What was on screen, so the relaunch does not leave the viewer looking
+        // at the relaunched app. A manual run always starts from our own editor.
+        val onScreenBefore = if (displayWasOff) null
+            else ForegroundApp.packageName(this, backend) ?: if (manual) packageName else null
+
         val killResult = backend.kill(this, rule.packageName)
         val parts = mutableListOf(
             if (killResult.success) "Killed via ${backend.displayName}"
@@ -141,6 +148,16 @@ class RestartService : Service() {
                     val home = AppLauncher.goHome(this, backend)
                     parts += if (home.success) "returned to Home" else "could not return to Home: ${home.detail}"
                 }
+            } else if (launchResult.success && !rule.wakeScreen &&
+                onScreenBefore != null && onScreenBefore != rule.packageName
+            ) {
+                // Someone is using the TV. The relaunched app's own start-up does
+                // the reconnecting, so it only needs a moment in front before
+                // whatever they were looking at is put back.
+                SystemClock.sleep(RETURN_DELAY_MS)
+                val label = PackageUtil.label(this, onScreenBefore)
+                val back = AppLauncher.returnTo(this, backend, onScreenBefore)
+                parts += if (back.success) "returned to $label" else "could not return to $label: ${back.detail}"
             }
         }
 
@@ -249,6 +266,9 @@ class RestartService : Service() {
 
         /** Time the relaunched app gets in front before the launcher is brought back. */
         private const val HOME_RETURN_DELAY_MS = 15_000L
+
+        /** With the screen on, how long the relaunched app shows before the previous one returns. */
+        private const val RETURN_DELAY_MS = 1_500L
 
         /** How soon to look again after deferring a run because the TV was in use. */
         private const val DEFER_RETRY_MS = 5 * 60_000L

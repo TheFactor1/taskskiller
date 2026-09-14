@@ -1,6 +1,5 @@
 package com.thefactor1.taskskiller.ui
 
-import android.animation.AnimatorInflater
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -140,8 +139,6 @@ class SetupActivity : AppCompatActivity() {
         if (card.isFocusable == focusable) return
         card.isFocusable = focusable
         card.setBackgroundResource(if (focusable) R.drawable.focusable_item else R.drawable.bg_card_group)
-        card.stateListAnimator =
-            if (focusable) AnimatorInflater.loadStateListAnimator(this, R.animator.focus_lift_card) else null
     }
 
     /**

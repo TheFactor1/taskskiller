@@ -23,23 +23,18 @@
         android:layout_marginTop="14dp"
         android:text="@string/show_system_apps" />
 
-    <!-- Rows are clipped to the list so they cannot scroll over the switch
-         above; the list reaches 12dp past the column on each side, padded back
-         in, so a row's focus lift still has room without being cut off. -->
+    <!-- Clipped to its own bounds (outline clip in AppPickerActivity) so rows
+         cannot scroll over the switch above. -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/appRecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginStart="-12dp"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="-12dp"
         android:layout_weight="1"
         android:clipToPadding="false"
         android:fadingEdgeLength="40dp"
         android:overScrollMode="never"
-        android:paddingStart="12dp"
         android:paddingTop="6dp"
-        android:paddingEnd="12dp"
         android:paddingBottom="24dp"
         android:requiresFadingEdge="vertical" />
 </LinearLayout>

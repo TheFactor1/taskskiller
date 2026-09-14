@@ -61,14 +61,7 @@ object AppLauncher {
      * bare HOME intent would leave an app chooser waiting for when the TV wakes.
      */
     fun goHome(context: Context, backend: KillBackend): OpResult {
-        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
-        val launcher = context.packageManager
-            .resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY)
-            ?.activityInfo
-            ?: return OpResult.fail("no launcher found")
-        // The system's chooser answers for HOME when no default launcher is set.
-        if (launcher.packageName == "android") return OpResult.fail("no default launcher is set")
-        val component = ComponentName(launcher.packageName, launcher.name)
+        val component = homeComponent(context) ?: return OpResult.fail("no default launcher is set")
 
         backend.shell(context, arrayOf("am", "start", "-n", component.flattenToShortString()))
             ?.takeIf { it.success }
@@ -76,12 +69,35 @@ object AppLauncher {
 
         return try {
             context.startActivity(
-                Intent(home).setComponent(component).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                Intent(Intent.ACTION_MAIN)
+                    .addCategory(Intent.CATEGORY_HOME)
+                    .setComponent(component)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
             OpResult.OK
         } catch (e: Exception) {
             OpResult.fail("startActivity failed: ${e.message}")
         }
+    }
+
+    /**
+     * Puts back the app that was on screen before a relaunch took over. Its
+     * launcher intent resumes the existing task where it was, so whatever was
+     * playing comes back rather than a fresh start screen.
+     */
+    fun returnTo(context: Context, backend: KillBackend, packageName: String): OpResult =
+        if (packageName == homeComponent(context)?.packageName) goHome(context, backend)
+        else launch(context, backend, packageName)
+
+    private fun homeComponent(context: Context): ComponentName? {
+        val home = Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME)
+        val launcher = context.packageManager
+            .resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY)
+            ?.activityInfo
+            ?: return null
+        // The system's chooser answers for HOME when no default launcher is set.
+        if (launcher.packageName == "android") return null
+        return ComponentName(launcher.packageName, launcher.name)
     }
 
     /**

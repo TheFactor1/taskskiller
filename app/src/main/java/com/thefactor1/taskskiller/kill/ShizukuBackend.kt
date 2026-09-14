@@ -81,6 +81,9 @@ object ShizukuBackend : KillBackend {
         else OpResult.fail("exited ${result.exitCode}: ${result.output}")
     }
 
+    override fun shellOutput(context: Context, command: Array<String>): String? =
+        exec(command).takeIf { it.success }?.output
+
     private data class ExecResult(val exitCode: Int, val output: String) {
         val success: Boolean get() = exitCode == 0
     }

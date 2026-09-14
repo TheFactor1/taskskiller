@@ -79,7 +79,7 @@
                 android:id="@+id/setupButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="12dp"
                 android:text="@string/setup_and_permissions" />
         </LinearLayout>
 
@@ -107,22 +107,17 @@
             android:text="@string/no_rules"
             android:visibility="gone" />
 
-        <!-- Clipped to its own bounds so rows cannot scroll over the header;
-             widened by 10dp each side and padded back in so a focused row's
-             lift is not cut off. -->
+        <!-- Clipped to its own bounds (outline clip in MainActivity) so rows
+             cannot scroll over the header. -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rulesRecycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_marginStart="-10dp"
-            android:layout_marginEnd="-10dp"
             android:layout_weight="1"
             android:clipToPadding="false"
             android:fadingEdgeLength="32dp"
             android:overScrollMode="never"
-            android:paddingStart="10dp"
             android:paddingTop="6dp"
-            android:paddingEnd="10dp"
             android:paddingBottom="12dp"
             android:requiresFadingEdge="vertical" />
     </LinearLayout>

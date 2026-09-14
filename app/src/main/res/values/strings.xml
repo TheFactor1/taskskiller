@@ -24,16 +24,12 @@
     <string name="system_app">system</string>
     <string name="no_launcher_entry">no launcher entry — kill only</string>
 
-    <string name="rule_edit_title">Restart rule</string>
     <string name="interval_label">Restart every</string>
-    <string name="interval_minutes">%1$d minutes</string>
-    <string name="interval_hours">%1$s hours</string>
     <string name="rule_enabled">Rule enabled</string>
     <string name="rule_relaunch">Relaunch after killing</string>
     <string name="rule_wake_screen">Wake the screen for the relaunch</string>
     <string name="rule_skip_screen_on">Skip while the screen is on</string>
     <string name="relaunch_delay_label">Wait before relaunching</string>
-    <string name="relaunch_delay_value">%1$.1f s</string>
     <string name="save">Save</string>
     <string name="delete">Delete</string>
     <string name="run_now">Run now</string>

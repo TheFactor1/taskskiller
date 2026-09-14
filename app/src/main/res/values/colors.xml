@@ -7,7 +7,6 @@
     <color name="background_light">#2E5B8CE8</color>
 
     <!-- Cards: a gentle top-to-bottom gradient reads as depth on a TV. -->
-    <color name="surface">#FF182132</color>
     <color name="surface_top">#FF1E2A40</color>
     <color name="surface_bottom">#FF141B2A</color>
     <color name="surface_focused">#FF26365A</color>

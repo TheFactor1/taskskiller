@@ -33,7 +33,7 @@ object ShizukuBackend : KillBackend {
     override fun unavailableReason(context: Context): String = when {
         !isShizukuInstalled(context) -> "Shizuku app is not installed"
         !isBinderAlive() -> "Shizuku is installed but not running — start it over ADB"
-        !hasPermission() -> "Shizuku permission not granted to TasksKiller yet"
+        !hasPermission() -> "Shizuku permission not granted to Refresher yet"
         else -> ""
     }
 

@@ -22,7 +22,7 @@ object DeviceOwnerBackend : KillBackend {
     } ?: false
 
     override fun unavailableReason(context: Context): String =
-        "TasksKiller is not the device owner of this box"
+        "Refresher is not the device owner of this box"
 
     override fun kill(context: Context, packageName: String): OpResult {
         val dpm = dpm(context) ?: return OpResult.fail("DevicePolicyManager unavailable")

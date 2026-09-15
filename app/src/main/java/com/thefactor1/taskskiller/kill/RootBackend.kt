@@ -37,7 +37,7 @@ object RootBackend : KillBackend {
     override fun unavailableReason(context: Context): String = when {
         !Shell.suBinaryExists() -> "No su binary on this device"
         verified == null -> "Checking for root access…"
-        else -> "Root access was not granted to TasksKiller"
+        else -> "Root access was not granted to Refresher"
     }
 
     private fun probe(): Boolean {

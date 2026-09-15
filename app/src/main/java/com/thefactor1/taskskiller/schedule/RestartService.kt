@@ -119,8 +119,8 @@ class RestartService : Service() {
 
         val killResult = backend.kill(this, rule.packageName)
         val parts = mutableListOf(
-            if (killResult.success) "Killed via ${backend.displayName}"
-            else "Kill failed (${backend.displayName}): ${killResult.detail}"
+            if (killResult.success) "Refreshed via ${backend.displayName}"
+            else "Refresh failed (${backend.displayName}): ${killResult.detail}"
         )
         if (killResult.success && killResult.detail.isNotBlank()) parts += killResult.detail
 

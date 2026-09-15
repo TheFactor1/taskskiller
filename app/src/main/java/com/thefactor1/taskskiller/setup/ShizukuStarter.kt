@@ -81,7 +81,7 @@ object ShizukuStarter {
                     !result.success -> Step("Start Shizuku", false, result.output)
                     ALREADY_RUNNING in result.output -> Step("Start Shizuku", true, DETAIL_ALREADY_RUNNING)
                     awaitBinder() -> Step("Start Shizuku", true)
-                    else -> Step("Start Shizuku", true, "started, but it has not answered TasksKiller yet")
+                    else -> Step("Start Shizuku", true, "started, but it has not answered Refresher yet")
                 }
             }
 

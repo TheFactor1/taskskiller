@@ -15,18 +15,6 @@ android {
         versionName = "0.1.0"
     }
 
-    // One debug key for every machine and for CI. Without it each GitHub runner
-    // signs with a freshly generated key, and Android refuses to install a build
-    // over one signed by a different key, so every update needed an uninstall.
-    signingConfigs {
-        getByName("debug") {
-            storeFile = file("debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = false

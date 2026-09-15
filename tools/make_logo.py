@@ -22,6 +22,10 @@ HALO, DOT = circle(dx, dy, 11), circle(dx, dy, 6.5)
 
 BLUE, GREEN, HALO_GREEN, WHITE, TEXT = "#FF7FB2FF", "#FF6FD48A", "#386FD48A", "#FFFFFFFF", "#FFF2F5FA"
 TOP, BOTTOM = "#FF1F2C46", "#FF0B1020"
+# Banners and the launcher icon sit on a near-neutral dark instead of the
+# app's navy: on a TV with a vivid picture mode the navy came out bright
+# blue next to other apps' dark banners.
+GROUND_TOP, GROUND_BOTTOM = "#FF1A1C21", "#FF08090B"
 HEAD = ('<?xml version="1.0" encoding="utf-8"?>\n')
 NS = 'xmlns:android="http://schemas.android.com/apk/res/android"'
 NS_AAPT = NS + '\n    xmlns:aapt="http://schemas.android.com/aapt"'
@@ -37,10 +41,10 @@ def ground(w, h):
     return f'''    <path android:pathData="M0,0h{w}v{h}h-{w}z">
         <aapt:attr name="android:fillColor">
             <gradient
-                android:endColor="{BOTTOM}"
+                android:endColor="{GROUND_BOTTOM}"
                 android:endX="0"
                 android:endY="{h}"
-                android:startColor="{TOP}"
+                android:startColor="{GROUND_TOP}"
                 android:startX="0"
                 android:startY="0"
                 android:type="linear" />

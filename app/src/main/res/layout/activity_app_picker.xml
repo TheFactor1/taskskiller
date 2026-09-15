@@ -24,17 +24,15 @@
         android:text="@string/show_system_apps" />
 
     <!-- Clipped to its own bounds (outline clip in AppPickerActivity) so rows
-         cannot scroll over the switch above. -->
-    <androidx.recyclerview.widget.RecyclerView
+         cannot scroll over the switch above; fades at an edge with more beyond. -->
+    <com.thefactor1.taskskiller.ui.FadingEdgeRecyclerView
         android:id="@+id/appRecycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="8dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:fadingEdgeLength="40dp"
         android:overScrollMode="never"
         android:paddingTop="6dp"
-        android:paddingBottom="24dp"
-        android:requiresFadingEdge="vertical" />
+        android:paddingBottom="24dp" />
 </LinearLayout>

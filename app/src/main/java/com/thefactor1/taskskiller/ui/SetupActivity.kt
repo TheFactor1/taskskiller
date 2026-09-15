@@ -138,7 +138,16 @@ class SetupActivity : AppCompatActivity() {
     private fun setCardFocusable(card: View, focusable: Boolean) {
         if (card.isFocusable == focusable) return
         card.isFocusable = focusable
+        // A new background replaces the view's padding with the drawable's own
+        // (the 4dp focus-ring inset). Start/end survive as relative padding,
+        // but top/bottom did not, which squeezed the card's text against its
+        // edges on a box with every permission granted. Put it back.
+        val start = card.paddingStart
+        val top = card.paddingTop
+        val end = card.paddingEnd
+        val bottom = card.paddingBottom
         card.setBackgroundResource(if (focusable) R.drawable.focusable_item else R.drawable.bg_card_group)
+        card.setPaddingRelative(start, top, end, bottom)
     }
 
     /**

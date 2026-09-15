@@ -108,18 +108,16 @@
             android:visibility="gone" />
 
         <!-- Clipped to its own bounds (outline clip in MainActivity) so rows
-             cannot scroll over the header. -->
-        <androidx.recyclerview.widget.RecyclerView
+             cannot scroll over the header; fades at an edge with more beyond. -->
+        <com.thefactor1.taskskiller.ui.FadingEdgeRecyclerView
             android:id="@+id/rulesRecycler"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:clipToPadding="false"
-            android:fadingEdgeLength="32dp"
             android:overScrollMode="never"
             android:paddingTop="6dp"
-            android:paddingBottom="12dp"
-            android:requiresFadingEdge="vertical" />
+            android:paddingBottom="12dp" />
     </LinearLayout>
 
     <!-- Right: how it is working and what it has done. -->
@@ -228,13 +226,11 @@
                 android:text="@string/no_activity"
                 android:visibility="gone" />
 
-            <androidx.recyclerview.widget.RecyclerView
+            <com.thefactor1.taskskiller.ui.FadingEdgeRecyclerView
                 android:id="@+id/logRecycler"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:fadingEdgeLength="24dp"
-                android:overScrollMode="never"
-                android:requiresFadingEdge="vertical" />
+                android:overScrollMode="never" />
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

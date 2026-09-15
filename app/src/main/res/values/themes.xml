@@ -17,9 +17,11 @@
         <item name="android:seekBarStyle">@style/Widget.TasksKiller.SeekBar</item>
     </style>
 
-    <!-- Buttons: pills with a glow ring and a lift when focused. The ring is
-         drawn inside the view's bounds, so every background reserves a 4dp
-         margin for it and the button body sits inset by that much. -->
+    <!-- Buttons: pills with a glow ring when focused. The ring is drawn inside
+         the view's bounds, so every background reserves a 4dp margin for it
+         and the button body sits inset by that much. They do not grow on
+         focus: scaling pushed a selected pill past the line its neighbours
+         and the card text sit on, so only the ring marks the selection. -->
     <style name="Widget.TasksKiller.Button" parent="Widget.MaterialComponents.Button.UnelevatedButton">
         <item name="android:background">@drawable/bg_button_secondary</item>
         <item name="backgroundTint">@null</item>
@@ -35,7 +37,7 @@
         <item name="android:insetBottom">0dp</item>
         <item name="android:paddingStart">28dp</item>
         <item name="android:paddingEnd">28dp</item>
-        <item name="android:stateListAnimator">@animator/focus_lift_button</item>
+        <item name="android:stateListAnimator">@null</item>
     </style>
 
     <style name="Widget.TasksKiller.Button.Primary">
@@ -112,7 +114,10 @@
         <item name="android:textSize">13sp</item>
     </style>
 
-    <!-- Cards. The 24dp padding includes the 4dp reserved for the focus ring. -->
+    <!-- Cards. The 24dp padding includes the 4dp reserved for the focus ring.
+         Text directly inside a card that also holds controls takes a further
+         4dp start/end margin, so it lines up with the pills and rows, whose
+         bodies sit 4dp inside their own bounds. -->
     <style name="Card">
         <item name="android:background">@drawable/bg_card</item>
         <item name="android:orientation">vertical</item>
@@ -135,5 +140,9 @@
     <style name="Card.Focusable">
         <item name="android:background">@drawable/focusable_item</item>
         <item name="android:focusable">true</item>
+        <!-- Text only, so it takes the extra 4dp itself to line up with the
+             text of the neighbouring cards that hold controls. -->
+        <item name="android:paddingStart">28dp</item>
+        <item name="android:paddingEnd">28dp</item>
     </style>
 </resources>

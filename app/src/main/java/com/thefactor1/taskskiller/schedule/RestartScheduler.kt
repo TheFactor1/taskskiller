@@ -80,6 +80,19 @@ object RestartScheduler {
         return maxOf(base + rule.intervalMillis, now + MIN_LEAD_MS)
     }
 
+    /** Where [rule] is in its current interval, from 0 to 1: the main screen's progress bar. */
+    fun progress(rule: Rule, now: Long = System.currentTimeMillis()): Float {
+        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        if (base <= 0L || rule.intervalMillis <= 0L) return 0f
+        return ((now - base).toDouble() / rule.intervalMillis).coerceIn(0.0, 1.0).toFloat()
+    }
+
+    /** The whole interval has passed: a run is about to fire, or is waiting for the screen to go off. */
+    fun isDue(rule: Rule, now: Long = System.currentTimeMillis()): Boolean {
+        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        return base > 0L && base + rule.intervalMillis <= now
+    }
+
     fun canScheduleExact(context: Context): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return true
         val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as? AlarmManager

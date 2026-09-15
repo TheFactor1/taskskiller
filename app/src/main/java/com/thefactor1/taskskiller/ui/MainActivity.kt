@@ -96,6 +96,24 @@ class MainActivity : AppCompatActivity() {
         // Alarms can be dropped by firmware task-killers, so re-arm on every visit.
         RestartScheduler.scheduleAll(this)
         refresh()
+        binding.root.removeCallbacks(ticker)
+        binding.root.postDelayed(ticker, TICK_MS)
+    }
+
+    override fun onPause() {
+        binding.root.removeCallbacks(ticker)
+        super.onPause()
+    }
+
+    /** Keeps "Next run" and its progress bar moving while this screen is open. */
+    private val ticker = object : Runnable {
+        override fun run() {
+            val store = RuleStore.get(this@MainActivity)
+            // A run that finished meanwhile changed a rule (and the log), so
+            // rebind everything; otherwise just move the countdowns on.
+            if (ruleAdapter.isShowing(store.all(), store.masterEnabled)) ruleAdapter.tick() else refresh()
+            binding.root.postDelayed(this, TICK_MS)
+        }
     }
 
     private fun refresh() {
@@ -134,5 +152,9 @@ class MainActivity : AppCompatActivity() {
             this, Manifest.permission.POST_NOTIFICATIONS
         ) == PackageManager.PERMISSION_GRANTED
         if (!granted) notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
+    private companion object {
+        const val TICK_MS = 30_000L
     }
 }

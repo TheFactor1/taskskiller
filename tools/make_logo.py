@@ -61,15 +61,29 @@ def word(text, x0, baseline, size, tracking=-0.3):
         x += g.width * s + tracking
     return " ".join(parts), x - tracking - x0
 
-def banner(name, text, comment):
-    size = 30.0
-    path, width = word(text, 120, 101, size)
-    while 120 + width > 300:          # keep a 20 dp margin on the right
+# The mark's visible extent on the 108 grid: the ring's outer edge on the
+# left (54 - 22 - 4) to the dot's halo on the right, centred on y = 54.
+MARK_LEFT, MARK_RIGHT, MARK_CY = 28.0, dx + 11, 54.0
+CAP = font["OS/2"].sCapHeight / upm
+
+def banner(name, text, comment, max_size=40.0, scale=1.0, gap=14.0, margin=24.0):
+    # Ring and wordmark are centred as one group, as large as fits between
+    # 24 dp margins. Launchers such as Projectivy show the banner inside a
+    # rounded pill, where a small mark set left of centre looked lost.
+    mark_w = (MARK_RIGHT - MARK_LEFT) * scale
+    size = max_size
+    while True:
+        _, width = word(text, 0, 0, size)
+        total = mark_w + gap + width
+        if total <= 320 - 2 * margin or size <= 20:
+            break
         size -= 0.5
-        path, width = word(text, 120, 101, size)
+    x0 = (320 - total) / 2
+    tx, ty = x0 - MARK_LEFT * scale, 90 - MARK_CY * scale
+    path, width = word(text, x0 + mark_w + gap, 90 + CAP * size / 2, size)
     xml = f'''{HEAD}<!-- {comment} Generated from logo B ("Reconnect"): the ring
-     and dot at 0.815 scale on the left, the wordmark in Lexend SemiBold
-     (SIL Open Font License) as outlines. -->
+     and dot beside the wordmark, centred as one group; the wordmark in
+     Lexend SemiBold (SIL Open Font License) as outlines. -->
 <vector {NS_AAPT}
     android:width="320dp"
     android:height="180dp"
@@ -77,10 +91,10 @@ def banner(name, text, comment):
     android:viewportHeight="180">
 {ground(320, 180)}
     <group
-        android:scaleX="0.815"
-        android:scaleY="0.815"
-        android:translateX="20"
-        android:translateY="46">
+        android:scaleX="{num(scale)}"
+        android:scaleY="{num(scale)}"
+        android:translateX="{num(tx)}"
+        android:translateY="{num(ty)}">
 {mark(indent="        ")}
     </group>
     <path
@@ -89,7 +103,7 @@ def banner(name, text, comment):
 </vector>
 '''
     open(f"{RES}/drawable/{name}.xml", "w").write(xml)
-    print(f"{name}: '{text}' at {size}px, {width:.1f} wide, ends at x={120 + width:.1f} of 320")
+    print(f"{name}: '{text}' at {size}px, group {total:.1f} wide from x={x0:.1f} of 320")
 
 banner("app_banner", "Refresher", "TV home-screen banner.")
 banner("refresh_now_banner", "Refresh now", 'Banner for the "Refresh now" tile.')

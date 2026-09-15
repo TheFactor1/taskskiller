@@ -41,6 +41,8 @@
 
     <string name="next_run">Next run: %1$s</string>
     <string name="next_run_paused">Paused</string>
+    <string name="next_run_waiting">Due · runs once the TV sleeps</string>
+    <string name="next_run_progress">%1$d%% of the way to the next run</string>
     <string name="last_run">Last: %1$s</string>
     <string name="never_run">Not run yet</string>
     <string name="every_interval">Every %1$s</string>

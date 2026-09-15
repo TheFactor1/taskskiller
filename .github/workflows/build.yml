@@ -21,6 +21,14 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # The action's default packages are "tools platform-tools", but Google
+          # removed the obsolete "tools" SDK package from its repository, which
+          # broke this step (sdkmanager: "Failed to find package 'tools'").
+          # platform-tools is all we need; the Android Gradle Plugin
+          # auto-downloads the compileSdk platform + build-tools at build time
+          # (licenses are auto-accepted by this action).
+          packages: platform-tools
 
       - name: Build debug APK
         run: ./gradlew assembleDebug --stacktrace

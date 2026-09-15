@@ -76,6 +76,27 @@
             </intent-filter>
         </activity>
 
+        <!-- "Refresh now": a second home-screen tile, and a target for remote
+             button mappers, that refreshes every enabled rule without opening
+             anything. The empty task affinity keeps Refresher's own task from
+             coming forward, so whatever was on screen is still there after. -->
+        <activity
+            android:name=".ui.RefreshNowActivity"
+            android:banner="@drawable/refresh_now_banner"
+            android:excludeFromRecents="true"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/refresh_now"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".ui.AppPickerActivity"
             android:exported="false" />

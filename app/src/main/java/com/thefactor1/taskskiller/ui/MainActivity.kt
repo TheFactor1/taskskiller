@@ -118,6 +118,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         val warning = when {
+            !backend.isAvailable(this) -> getString(R.string.warning_no_backend)
             !backend.isForceStop -> getString(R.string.warning_weak_backend)
             !backend.hasPrivilegedLaunch && AppLauncher.backgroundStartsLikelyBlocked(this) ->
                 getString(R.string.warning_background_launch)

@@ -17,8 +17,9 @@ object KillBackends {
 
     /**
      * The backend a run will actually use: the user's pick when it is usable,
-     * otherwise the strongest one that is. [BackgroundProcessBackend] is always
-     * available, so this never returns null.
+     * otherwise the strongest one that is. With none usable (Android 14+ and
+     * nothing set up) it still returns [BackgroundProcessBackend], whose kill
+     * then reports why it cannot work.
      */
     fun resolve(context: Context): KillBackend {
         val preferred = RuleStore.get(context).preferredBackend

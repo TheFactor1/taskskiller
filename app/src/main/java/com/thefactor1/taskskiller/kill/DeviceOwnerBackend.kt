@@ -10,6 +10,11 @@ import android.content.Context
  * Hiding a package force-stops it as a side effect, which gives a real
  * force-stop without root or a per-boot ADB step — at the cost of a one-time
  * provisioning command on a box with no accounts set up.
+ *
+ * To the rest of the system a hidden package looks uninstalled, so every
+ * refresh reads as a remove and re-add: PACKAGE_REMOVED/ADDED broadcasts, the
+ * launcher tile may move, and processes bound to the app die with it. The
+ * Setup screen's device-owner instructions say so.
  */
 object DeviceOwnerBackend : KillBackend {
     override val id = "deviceowner"

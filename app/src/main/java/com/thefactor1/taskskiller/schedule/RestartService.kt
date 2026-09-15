@@ -49,7 +49,8 @@ class RestartService : Service() {
         when (intent?.action) {
             ACTION_RUN_RULE -> {
                 val ruleId = intent.getLongExtra(EXTRA_RULE_ID, -1L)
-                if (ruleId >= 0) enqueue(ruleId, manual = intent.getBooleanExtra(EXTRA_MANUAL, false))
+                val manual = intent.getBooleanExtra(EXTRA_MANUAL, false)
+                if (ruleId >= 0) enqueue(ruleId, manual, intent.getBooleanExtra(EXTRA_RETURN_TO_APP, manual))
                 else finishIfIdle()
             }
             else -> finishIfIdle()
@@ -62,12 +63,12 @@ class RestartService : Service() {
         super.onDestroy()
     }
 
-    private fun enqueue(ruleId: Long, manual: Boolean) {
+    private fun enqueue(ruleId: Long, manual: Boolean, returnToApp: Boolean) {
         pendingJobs.incrementAndGet()
         executor.execute {
             val wakeLock = acquireWakeLock()
             try {
-                execute(ruleId, manual)
+                execute(ruleId, manual, returnToApp)
             } catch (e: Exception) {
                 Log.e(TAG, "Rule $ruleId failed", e)
                 RunLog.get(this).add("Rule $ruleId", "Unexpected error: ${e.message}", false)
@@ -78,7 +79,7 @@ class RestartService : Service() {
         }
     }
 
-    private fun execute(ruleId: Long, manual: Boolean) {
+    private fun execute(ruleId: Long, manual: Boolean, returnToApp: Boolean) {
         val store = RuleStore.get(this)
         val rule = store.find(ruleId) ?: run {
             RestartScheduler.cancel(this, ruleId)
@@ -113,9 +114,11 @@ class RestartService : Service() {
         val backend = KillBackends.resolve(this)
 
         // What was on screen, so the relaunch does not leave the viewer looking
-        // at the relaunched app. A manual run always starts from our own editor.
+        // at the relaunched app. Run now starts from our own editor, so without
+        // a shell to ask, Refresher is the answer; the Refresh now tile starts
+        // from someone else's screen, which cannot be known then.
         val onScreenBefore = if (displayWasOff) null
-            else ForegroundApp.packageName(this, backend) ?: if (manual) packageName else null
+            else ForegroundApp.packageName(this, backend) ?: if (manual && returnToApp) packageName else null
 
         val killResult = backend.kill(this, rule.packageName)
         val parts = mutableListOf(
@@ -260,6 +263,7 @@ class RestartService : Service() {
         private const val ACTION_RUN_RULE = "com.thefactor1.taskskiller.action.RUN_RULE"
         private const val EXTRA_RULE_ID = "rule_id"
         private const val EXTRA_MANUAL = "manual"
+        private const val EXTRA_RETURN_TO_APP = "return_to_app"
 
         private const val WAKE_LOCK_TIMEOUT_MS = 3 * 60_000L
         private const val MAX_RELAUNCH_DELAY_MS = 60_000L
@@ -273,11 +277,17 @@ class RestartService : Service() {
         /** How soon to look again after deferring a run because the TV was in use. */
         private const val DEFER_RETRY_MS = 5 * 60_000L
 
-        fun runRule(context: Context, ruleId: Long, manual: Boolean = false) {
+        /**
+         * [returnToApp]: when the foreground app cannot be read, whether a
+         * manual run should bring Refresher back afterwards (true for Run now
+         * in the editor, false for the Refresh now tile).
+         */
+        fun runRule(context: Context, ruleId: Long, manual: Boolean = false, returnToApp: Boolean = manual) {
             val intent = Intent(context, RestartService::class.java).apply {
                 action = ACTION_RUN_RULE
                 putExtra(EXTRA_RULE_ID, ruleId)
                 putExtra(EXTRA_MANUAL, manual)
+                putExtra(EXTRA_RETURN_TO_APP, returnToApp)
             }
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

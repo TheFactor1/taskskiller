@@ -24,7 +24,7 @@ class ShizukuStartReceiver : BroadcastReceiver() {
         // Network I/O: off the main thread, inside the broadcast's time budget.
         Thread {
             try {
-                if (!RuleStore.get(context).autoStartShizuku) return@Thread
+                if (!LocalAdb.isSupported || !RuleStore.get(context).autoStartShizuku) return@Thread
                 val step = ShizukuStarter.startInBackground(context)
                 when {
                     // Android also sends BOOT_COMPLETED after an app update on

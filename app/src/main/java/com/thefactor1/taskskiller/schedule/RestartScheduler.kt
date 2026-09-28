@@ -64,6 +64,21 @@ object RestartScheduler {
     }
 
     /**
+     * Where the current interval started, never later than [now].
+     *
+     * A TV box with no battery-backed clock can boot with the wrong time and
+     * only correct it once NTP lands. A run recorded inside that window leaves
+     * lastRunAt in the future, and because nextRunAt is deliberately a pure
+     * function of stored state, nothing would ever repair it: the alarm would
+     * be set days out and scheduleAll() would keep computing the same answer.
+     * Clamping treats a future timestamp as "due now" instead.
+     */
+    private fun baseFor(rule: Rule, now: Long): Long {
+        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        return if (base <= 0L) base else minOf(base, now)
+    }
+
+    /**
      * Intervals are measured from the end of the last run, or from the rule's
      * anchor if it has never run. Both are persisted, which makes this a pure
      * function of stored state: re-arming the same rule any number of times
@@ -74,7 +89,7 @@ object RestartScheduler {
      */
     fun nextRunAt(rule: Rule): Long {
         val now = System.currentTimeMillis()
-        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        val base = baseFor(rule, now)
         // Saved by a build that had no anchor yet: start the clock from now.
         if (base <= 0L) return now + rule.intervalMillis
         return maxOf(base + rule.intervalMillis, now + MIN_LEAD_MS)
@@ -82,14 +97,14 @@ object RestartScheduler {
 
     /** Where [rule] is in its current interval, from 0 to 1: the main screen's progress bar. */
     fun progress(rule: Rule, now: Long = System.currentTimeMillis()): Float {
-        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        val base = baseFor(rule, now)
         if (base <= 0L || rule.intervalMillis <= 0L) return 0f
         return ((now - base).toDouble() / rule.intervalMillis).coerceIn(0.0, 1.0).toFloat()
     }
 
     /** The whole interval has passed: a run is about to fire, or is waiting for the screen to go off. */
     fun isDue(rule: Rule, now: Long = System.currentTimeMillis()): Boolean {
-        val base = if (rule.lastRunAt > 0L) rule.lastRunAt else rule.anchorAt
+        val base = baseFor(rule, now)
         return base > 0L && base + rule.intervalMillis <= now
     }
 

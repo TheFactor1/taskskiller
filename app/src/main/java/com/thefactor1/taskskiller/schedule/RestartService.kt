@@ -40,9 +40,22 @@ class RestartService : Service() {
     private val executor = Executors.newSingleThreadExecutor()
     private val pendingJobs = AtomicInteger(0)
 
+    /**
+     * The most recent start id, so a stop can be refused when a start arrived
+     * after the running job began. The no-argument stopSelf() ignores that and
+     * tears the service down anyway; onDestroy then calls executor.shutdown(),
+     * which *drains* the queue rather than discarding it, so the newly queued
+     * job would run on a destroyed Service — sleeping up to 75 s and calling
+     * startActivity through a dead Context, with no foreground service holding
+     * the process up.
+     */
+    @Volatile
+    private var latestStartId = 0
+
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        latestStartId = startId
         // Must happen within a few seconds of being started, before any work.
         promoteToForeground()
 
@@ -74,7 +87,7 @@ class RestartService : Service() {
                 RunLog.get(this).add("Rule $ruleId", "Unexpected error: ${e.message}", false)
             } finally {
                 releaseWakeLock(wakeLock)
-                if (pendingJobs.decrementAndGet() <= 0) stopSelf()
+                if (pendingJobs.decrementAndGet() <= 0) stopSelf(latestStartId)
             }
         }
     }
@@ -93,7 +106,7 @@ class RestartService : Service() {
 
         if (!PackageUtil.isInstalled(this, rule.packageName)) {
             record(rule, "Skipped: ${rule.packageName} is not installed", success = false)
-            if (!manual) RestartScheduler.schedule(this, rule.copy(lastRunAt = System.currentTimeMillis()))
+            reArm(ruleId, rule.copy(lastRunAt = System.currentTimeMillis()))
             return
         }
 
@@ -165,9 +178,24 @@ class RestartService : Service() {
         }
 
         record(rule, parts.joinToString(" • "), killResult.success)
-        if (!manual) {
-            RestartScheduler.schedule(this, store.find(ruleId) ?: rule)
-        }
+        reArm(ruleId, rule)
+    }
+
+    /**
+     * Re-arm after *every* run, manual included.
+     *
+     * [record] has just advanced lastRunAt, but a manual run used to leave the
+     * existing alarm untouched at its original trigger time, and the alarm path
+     * does not consult [RestartScheduler.isDue] — so pressing "Refresh now"
+     * shortly before a rule was due killed the app a second time when the stale
+     * alarm landed. Nothing corrected it unless MainActivity happened to be
+     * opened, which is exactly what the tile exists to avoid.
+     */
+    private fun reArm(ruleId: Long, fallback: Rule) {
+        val store = RuleStore.get(this)
+        val latest = store.find(ruleId) ?: fallback
+        if (latest.enabled && store.masterEnabled) RestartScheduler.schedule(this, latest)
+        else RestartScheduler.cancel(this, ruleId)
     }
 
     /** Persist the outcome on the rule and in the rolling log. */
@@ -212,7 +240,7 @@ class RestartService : Service() {
     }
 
     private fun finishIfIdle() {
-        if (pendingJobs.get() <= 0) stopSelf()
+        if (pendingJobs.get() <= 0) stopSelf(latestStartId)
     }
 
     private fun promoteToForeground() {

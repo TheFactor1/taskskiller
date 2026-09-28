@@ -33,8 +33,15 @@ class AppPickerActivity : AppCompatActivity() {
         binding.appRecycler.outlineProvider = ViewOutlineProvider.BOUNDS
         binding.appRecycler.clipToOutline = true
         binding.appRecycler.adapter = adapter
+        // Only the rows take focus, as in MainActivity. RecyclerView makes
+        // itself focusable in its constructor, and this screen shows an empty
+        // list while the packages are still being enumerated — so DOWN landed
+        // on the list itself, with nothing highlighted and OK doing nothing.
+        binding.appRecycler.isFocusable = false
+        binding.appRecycler.isFocusableInTouchMode = false
 
         binding.systemAppsSwitch.setOnCheckedChangeListener { _, _ -> applyFilter() }
+        binding.systemAppsSwitch.requestFocus()
 
         // Enumerating every installed package takes long enough on a TV box to
         // be worth keeping off the main thread.

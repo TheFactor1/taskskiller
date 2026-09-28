@@ -73,7 +73,12 @@ class RuleEditActivity : AppCompatActivity() {
     }
 
     private fun save(): Rule {
-        val current = existing
+        // Re-read rather than trusting the snapshot taken in onCreate. A run can
+        // finish while this screen is open — RestartService.record() writes
+        // lastRunAt and lastResult straight to the store — and saving the stale
+        // copy back put the next run in the past, which MIN_LEAD_MS then clamped
+        // to 30 s: the app was force-stopped again moments after pressing Save.
+        val current = existing?.id?.let { store.find(it) } ?: existing
         val rule = Rule(
             id = current?.id ?: store.nextId(),
             packageName = targetPackage,

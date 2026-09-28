@@ -29,9 +29,16 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
         val packageName = result.data?.getStringExtra(AppPickerActivity.RESULT_PACKAGE) ?: return@registerForActivityResult
+        // Open the rule this package already has instead of making a second one.
+        // Passing only EXTRA_PACKAGE left the editor with no rule id, so it
+        // treated the pick as new and allocated a fresh one — two independent
+        // schedules then force-stopped the same app.
+        val existingRule = RuleStore.get(this).all().firstOrNull { it.packageName == packageName }
         startActivity(
-            Intent(this, RuleEditActivity::class.java)
-                .putExtra(RuleEditActivity.EXTRA_PACKAGE, packageName)
+            Intent(this, RuleEditActivity::class.java).apply {
+                if (existingRule != null) putExtra(RuleEditActivity.EXTRA_RULE_ID, existingRule.id)
+                else putExtra(RuleEditActivity.EXTRA_PACKAGE, packageName)
+            }
         )
     }
 

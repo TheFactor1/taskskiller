@@ -61,6 +61,12 @@ object RootBackend : KillBackend {
     }
 
     override fun kill(context: Context, packageName: String): OpResult {
+        // Belt and braces with the check in Rule.fromJson: this is the one
+        // backend that interpolates into a shell, so it refuses outright rather
+        // than trusting that everything upstream validated.
+        if (!PackageUtil.isPlausiblePackageName(packageName)) {
+            return OpResult.fail("Refusing to build a shell command for \"$packageName\"")
+        }
         val result = Shell.runAsRoot("am force-stop $packageName")
         return if (result.success) OpResult.OK
         else OpResult.fail("am force-stop exited ${result.exitCode}: ${result.output}")
@@ -73,6 +79,9 @@ object RootBackend : KillBackend {
     }
 
     override fun launch(context: Context, packageName: String): OpResult {
+        if (!PackageUtil.isPlausiblePackageName(packageName)) {
+            return OpResult.fail("Refusing to build a shell command for \"$packageName\"")
+        }
         val component = PackageUtil.launchComponent(context, packageName)
             ?: return OpResult.fail("No launchable activity in $packageName")
         val result = Shell.runAsRoot("am start -n ${component.flattenToShortString()}")

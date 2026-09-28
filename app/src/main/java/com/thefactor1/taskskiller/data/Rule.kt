@@ -1,5 +1,7 @@
 package com.thefactor1.taskskiller.data
 
+import com.thefactor1.taskskiller.util.PackageUtil
+import org.json.JSONException
 import org.json.JSONObject
 
 /**
@@ -76,9 +78,23 @@ data class Rule(
         const val MIN_INTERVAL_MINUTES = 5
         const val MAX_INTERVAL_MINUTES = 24 * 60
 
+        /**
+         * Stored rules are JSON, so this input is not necessarily one we wrote,
+         * and the package name reaches a root shell by interpolation in
+         * RootBackend. A name that is not a real package name is refused here;
+         * RuleStore already drops a single unreadable entry rather than the
+         * whole set, so one bad rule cannot take the others down with it.
+         */
+        private fun requirePackageName(value: String): String {
+            if (!PackageUtil.isPlausiblePackageName(value)) {
+                throw JSONException("Refusing rule with implausible package name")
+            }
+            return value
+        }
+
         fun fromJson(json: JSONObject): Rule = Rule(
             id = json.getLong(KEY_ID),
-            packageName = json.getString(KEY_PACKAGE),
+            packageName = requirePackageName(json.getString(KEY_PACKAGE)),
             label = json.optString(KEY_LABEL, json.getString(KEY_PACKAGE)),
             // Clamped on the way in: a corrupt or hand-edited interval of 0
             // would otherwise schedule a run every MIN_LEAD_MS for ever.

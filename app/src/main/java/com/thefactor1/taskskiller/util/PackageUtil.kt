@@ -9,6 +9,22 @@ import android.graphics.drawable.Drawable
 
 object PackageUtil {
 
+    /** Letters, digits and underscores in dot-separated segments — nothing a shell reads. */
+    private val PACKAGE_NAME = Regex("[A-Za-z0-9_]+(\\.[A-Za-z0-9_]+)*")
+
+    /**
+     * Whether [value] is a syntactically real package name.
+     *
+     * [com.thefactor1.taskskiller.kill.RootBackend] builds its commands by
+     * interpolating the package name into a string that `su -c` hands to a
+     * shell, so a name carrying `;` or `$(…)` would be executed rather than
+     * treated as an argument. Names only ever come from PackageManager today,
+     * but rules are persisted as JSON, so anything arriving from storage is
+     * checked before it can reach a shell.
+     */
+    fun isPlausiblePackageName(value: String): Boolean =
+        value.length in 1..255 && PACKAGE_NAME.matches(value)
+
     /**
      * TV apps expose a LEANBACK_LAUNCHER activity; sideloaded phone apps only
      * have the ordinary LAUNCHER one. Try the TV entry point first.

@@ -57,8 +57,13 @@
         </intent>
     </queries>
 
+    <!-- Backup is off deliberately. The app keeps an ADB private key at
+         filesDir/adb/adbkey which this box's own adbd trusts, and `adb backup`
+         would hand it out. It also removes a restore path for tampered rules,
+         whose package names reach a root shell in RootBackend. Nothing stored
+         here is worth carrying across a reinstall anyway. -->
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:banner="@drawable/app_banner"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
